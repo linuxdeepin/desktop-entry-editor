@@ -1,22 +1,65 @@
 #include "dialog.h"
 
 #include <QHBoxLayout>
+#include <QDebug>
+#include <QEvent>
 
-Dialog::Dialog(QWidget *parent)
-    : DDialog(parent),
+static const QSize DefaultIconSize(48, 48);
+
+static const QString KeyType = "Type";
+static const QString KeyName = "Name";
+static const QString KeyIcon = "Icon";
+static const QString KeyExec = "Exec";
+static const QString KeyComment = "Comment";
+
+Dialog::Dialog(QString desktopFile)
+    : DDialog(),
       m_icon(new QLabel),
       m_nameEdit(new DLineEdit),
       m_commentEdit(new DLineEdit),
-      m_execEdit(new DFileChooserEdit)
+      m_execEdit(new DFileChooserEdit),
+
+      m_parser(new XdgDesktopFile),
+      m_desktopFile(desktopFile)
+{
+    initUI();
+    initDefaultValues();
+    initConnections();
+}
+
+Dialog::~Dialog()
+{
+
+}
+
+void Dialog::setIcon(const QString icon)
+{
+    if (icon.length() == 0) {
+        return;
+    }
+    m_iconFile = icon;
+
+    if (QFile::exists(icon)) {
+        // A specific file.
+        QPixmap pix(icon);
+        pix.scaled(DefaultIconSize);
+
+        m_icon->setPixmap(pix);
+    } else {
+        QIcon defaultIcon = QIcon::fromTheme("application-x-executable");
+        defaultIcon = QIcon::fromTheme(icon, defaultIcon);
+        QPixmap defaultIconPix = defaultIcon.pixmap(DefaultIconSize);
+        m_icon->setPixmap(defaultIconPix);
+    }
+}
+
+void Dialog::initUI()
 {
     // set title
-    setTitle(tr("Desktop item editor"));
+    setTitle(tr("Launcher item editor"));
 
-    // default icon value
-    const QSize defaultIconSize(48, 48);
-    const QIcon defaultIcon = QIcon::fromTheme("firefox");
-    m_icon->setFixedSize(48, 48);
-    m_icon->setPixmap(defaultIcon.pixmap(defaultIconSize));
+    m_icon->setFixedSize(DefaultIconSize);
+    m_icon->installEventFilter(this);
 
     QGridLayout *rightLayout = new QGridLayout;
     rightLayout->addWidget(new QLabel(tr("Name")), 0, 0);
@@ -41,7 +84,47 @@ Dialog::Dialog(QWidget *parent)
     addButton(tr("Confirm"));
 }
 
-Dialog::~Dialog()
+void Dialog::initDefaultValues()
 {
+    setIcon("application-x-executable");
 
+    m_nameEdit->setPlaceholderText(tr("name to display"));
+    m_commentEdit->setPlaceholderText(tr("comment of this launcher item"));
+    m_execEdit->setPlaceholderText(tr("choose a binary"));
+
+
+    if (QFile::exists(m_desktopFile)) {
+        QDir dir = QDir::currentPath();
+        m_parser->load(dir.absoluteFilePath(m_desktopFile));
+
+        m_nameEdit->setText(m_parser->value(KeyName).toString());
+        m_commentEdit->setText(m_parser->value(KeyComment).toString());
+        m_execEdit->setText(m_parser->value(KeyExec).toString());
+        setIcon(m_parser->value(KeyIcon).toString());
+    }
+}
+
+void Dialog::initConnections()
+{
+    connect(this, &Dialog::buttonClicked, this, &Dialog::createOrUpdateDesktopFile);
+}
+
+bool Dialog::eventFilter(QObject *o, QEvent *e)
+{
+    if (o == m_icon && e->type() == QEvent::MouseButtonRelease) {
+        QString iconFile = QFileDialog::getOpenFileName();
+        setIcon(iconFile);
+    }
+
+    return false;
+}
+
+void Dialog::createOrUpdateDesktopFile()
+{
+    m_parser->setValue(KeyType, "Application");
+    m_parser->setValue(KeyName, m_nameEdit->text());
+    m_parser->setValue(KeyIcon, m_iconFile);
+    m_parser->setValue(KeyExec, m_execEdit->text());
+    m_parser->setValue(KeyComment, m_commentEdit->text());
+    m_parser->save(m_desktopFile);
 }
