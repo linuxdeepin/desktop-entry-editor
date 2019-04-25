@@ -30,3 +30,13 @@ SOURCES += main.cpp\
         dialog.cpp
 
 HEADERS  += dialog.h
+
+isEmpty(PREFIX) {
+    PREFIX = /usr
+}
+
+desktop.files += *.desktop
+desktop.path = $${PREFIX}/share/applications/
+
+target.path = $${PREFIX}/bin/
+INSTALLS += target desktop

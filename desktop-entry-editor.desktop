@@ -1,0 +1,9 @@
+[Desktop Entry]
+Comment=Editor desktop files.
+Exec=desktop-entry-editor %f
+Icon=tool
+Name=Desktop Entry Editor
+Name[zh_CN]=快捷方式编辑器
+OnlyShowIn=Deepin;
+Type=Application
+MimeType=application/x-desktop
