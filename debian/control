@@ -1,0 +1,13 @@
+Source: desktop-entry-editor
+Section: utils
+Priority: optional
+Maintainer: zhangshuang <zhangshuang@deepin.com>
+Build-Depends: debhelper (>= 11), libqt5xdg-dev
+Standards-Version: 4.1.3
+Homepage: https://github.com/linuxdeepin/desktop-entry-editor
+
+Package: desktop-entry-editor
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Create and edit desktop files.
+ A simple GUI tool to create and edit desktop files.
