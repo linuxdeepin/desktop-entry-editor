@@ -56,7 +56,7 @@ void Dialog::setIcon(const QString icon)
 void Dialog::initUI()
 {
     // set title
-    setTitle(tr("Launcher item editor"));
+    setTitle(tr("Desktop entry editor"));
 
     m_icon->setFixedSize(DefaultIconSize);
     m_icon->installEventFilter(this);
@@ -89,7 +89,7 @@ void Dialog::initDefaultValues()
     setIcon("application-x-executable");
 
     m_nameEdit->setPlaceholderText(tr("name to display"));
-    m_commentEdit->setPlaceholderText(tr("comment of this launcher item"));
+    m_commentEdit->setPlaceholderText(tr("comment of this desktop entry"));
     m_execEdit->setPlaceholderText(tr("choose a binary"));
 
 
