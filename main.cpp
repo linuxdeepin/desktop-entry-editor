@@ -2,11 +2,18 @@
 
 #include <QApplication>
 #include <QCommandLineParser>
+#include <QTranslator>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setApplicationVersion("0.1");
+
+    const QString trPrefix = "/usr/share/desktop-entry-editor/translations/desktop-entry-editor_";
+
+    QTranslator translator;
+    translator.load(trPrefix + QLocale::system().name());
+    a.installTranslator(&translator);
 
     QCommandLineParser parser;
     parser.setApplicationDescription("Desktop entry editor");

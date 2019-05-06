@@ -35,8 +35,14 @@ isEmpty(PREFIX) {
     PREFIX = /usr
 }
 
+# Automating generation .qm files from .ts files
+!system($$PWD/translations/translate_generation.sh): error("Failed to generate translation")
+
+qm_files.path = /usr/share/desktop-entry-editor/translations/
+qm_files.files = translations/*.qm
+
 desktop.files += *.desktop
 desktop.path = $${PREFIX}/share/applications/
 
 target.path = $${PREFIX}/bin/
-INSTALLS += target desktop
+INSTALLS += target desktop qm_files
